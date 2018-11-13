@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">ff_one</string>
+    <string name="led">LED %1$s</string>
+    <string name="title">LIGHTS!</string>
+    <string name="serial_messages">Serial Messages</string>
+    <string name="default_rpm"> 0 RPM </string>
+</resources>

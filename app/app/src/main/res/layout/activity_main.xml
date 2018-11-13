@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".MainActivity">
+
+    <com.example.kirill.ff_one.JoystickView
+        android:id="@+id/JoystickView"
+        android:layout_width="322dp"
+        android:layout_height="218dp"
+        android:layout_marginStart="870dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginBottom="8dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/SpeedometerView"
+        app:layout_constraintVertical_bias="0.985" />
+
+    <com.example.kirill.ff_one.SpeedometerView
+        android:id="@+id/SpeedometerView"
+        android:layout_width="0dp"
+        android:layout_height="60dp"
+        android:layout_marginStart="200dp"
+        android:layout_marginTop="180dp"
+        android:layout_marginEnd="200dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/rpmCounter"
+        android:layout_width="402dp"
+        android:layout_height="104dp"
+        android:layout_marginTop="40dp"
+        android:layout_marginBottom="13dp"
+        android:fontFamily="@font/allerta_stencil"
+        android:text="@string/default_rpm"
+        android:textAlignment="center"
+        android:textColor="@color/straight_up_white"
+        android:textSize="72sp"
+        app:layout_constraintBottom_toTopOf="@+id/JoystickView"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/SpeedometerView"
+        app:layout_constraintVertical_bias="0.0"
+        tools:text="@string/default_rpm" />
+
+    <com.example.kirill.ff_one.BatteryView
+        android:id="@+id/BatteryView"
+        android:layout_width="0dp"
+        android:layout_height="73dp"
+        android:layout_marginStart="400dp"
+        android:layout_marginTop="60dp"
+        android:layout_marginEnd="400dp"
+        android:layout_marginBottom="12dp"
+        app:layout_constraintBottom_toTopOf="@+id/SpeedometerView"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.0" />
+
+</android.support.constraint.ConstraintLayout>
