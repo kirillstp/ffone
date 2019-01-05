@@ -8,8 +8,8 @@
 
     <com.example.kirill.ff_one.JoystickView
         android:id="@+id/JoystickView"
-        android:layout_width="322dp"
-        android:layout_height="218dp"
+        android:layout_width="339dp"
+        android:layout_height="307dp"
         android:layout_marginStart="870dp"
         android:layout_marginEnd="8dp"
         android:layout_marginBottom="8dp"

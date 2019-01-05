@@ -1,22 +1,27 @@
 
+#include <AltSoftSerial.h>
+#include <ServoTimer2.h>
 #define LH_ENCODER_A 2
-#define LH_EN 5
-#define LH_PH 4
-
+#define LH_EN 12
+#define LH_PH 11
+#define SERVO_PIN 6
 
 
 int toggle = 0;
 int pwmVal = 0;
 int shaftSpeed = 0;
 int encoderTicks = 0;
+AltSoftSerial controllerSerial;
+ServoTimer2 steerServo;
 
 void setup() {  
   Serial.begin(9600);
   pinMode(LH_EN, OUTPUT);
   pinMode(LH_PH, OUTPUT);
   pinMode(LH_ENCODER_A, INPUT);
-  attachInterrupt(digitalPinToInterrupt(LH_ENCODE`R_A), onEncoderTick, RISING);
-
+  attachInterrupt(digitalPinToInterrupt(LH_ENCODER_A), onEncoderTick, RISING);
+  controllerSerial.begin(9600);
+  steerServo.attach(SERVO_PIN);
 }
 
 void loop() {

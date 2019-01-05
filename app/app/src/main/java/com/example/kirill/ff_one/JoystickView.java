@@ -6,6 +6,7 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.PixelFormat;
 import android.graphics.PorterDuff;
+import android.os.SystemClock;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
@@ -13,6 +14,9 @@ import android.view.SurfaceView;
 import android.view.View;
 
 import java.io.IOException;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 public class JoystickView extends SurfaceView implements SurfaceHolder.Callback, View.OnTouchListener{
@@ -21,6 +25,7 @@ public class JoystickView extends SurfaceView implements SurfaceHolder.Callback,
     private float baseRadius;
     private float hatRadius;
     public JoystickListener joystickCallback;
+
     // surface view constructors
     public JoystickView(Context context) {
         super(context);
@@ -87,6 +92,7 @@ public class JoystickView extends SurfaceView implements SurfaceHolder.Callback,
 
     // listen for touches
     public boolean onTouch(View v, MotionEvent e) {
+        long currentTimestamp = SystemClock.uptimeMillis();
         float jX = e.getX();
         float jY = e.getY();
         if (v.equals(this)) {
@@ -108,12 +114,6 @@ public class JoystickView extends SurfaceView implements SurfaceHolder.Callback,
             joystickCallback.onJoystickMoved((jX - centerX) / baseRadius,
                     (jY - centerY) / baseRadius,
                     getId());
-        }
-        try {
-            TimeUnit.MILLISECONDS.sleep(16);
-        }
-        catch (InterruptedException ex){
-            return true;
         }
         return true;
     }

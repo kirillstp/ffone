@@ -6,6 +6,7 @@ import android.bluetooth.BluetoothSocket;
 import android.content.Intent;
 import android.graphics.PixelFormat;
 import android.os.Handler;
+import android.os.SystemClock;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -18,6 +19,8 @@ import android.widget.Toast;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
@@ -43,9 +46,11 @@ public class MainActivity extends AppCompatActivity implements JoystickView.Joys
     private InputStream inStream = null;
     private SpeedometerView speedometer;
     private BatteryView battery;
-    private float xPercent = 0;
-    private float yPercent = 0;
+    private List<Float> xMovement = new ArrayList<>();
+    private List<Float> yMovement = new ArrayList<>();
     private int boost = 0;
+    private final long minimumInterval = 25;
+    private long lastCalled = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -175,8 +180,8 @@ public class MainActivity extends AppCompatActivity implements JoystickView.Joys
             }
         }
     }
-    private String makeMessage(float xPercent, float yPercent, int boost) {
-        String message = String.format("<%f, %f, %d>",xPercent, yPercent, boost);
+    private String makeMessage(float xPercent, float yPercent, float boost) {
+        String message = String.format("<x%f,y%f,b%f,>",xPercent, yPercent, boost);
 //        String message = "<1,1,1>";
         return message;
     }
@@ -193,8 +198,8 @@ public class MainActivity extends AppCompatActivity implements JoystickView.Joys
             if (address.equals("00:00:00:00:00:00"))
                 msg = msg + ".\n\nUpdate your server address from 00:00:00:00:00:00 to the correct address on line 37 in the java code";
             msg = msg + ".\n\nCheck that the SPP UUID: " + MY_UUID.toString() + " exists on server.\n\n";
-
-            errorExit("Fatal Error", msg);
+            Log.d(TAG, "Error "+msg);
+            onResume();
         }
     }
 
@@ -222,17 +227,23 @@ public class MainActivity extends AppCompatActivity implements JoystickView.Joys
                                     String data = new String(encodedBytes, "US-ASCII");
                                     data = data.replaceAll("(\\r|\\n)","");
                                     String vals[]= data.split(",", 3);
-                                    battery.setVoltage(Float.parseFloat(vals[2]));
-                                    final double rpm_val = (Float.parseFloat(vals[0])+Float.parseFloat(vals[1]))*0.5;
-                                    speedometer.setRpm((int)(rpm_val));
-                                    runOnUiThread(new Runnable() {
-                                          @Override
-                                          public void run() {
-                                              TextView rpm_text = (TextView) findViewById(R.id.rpmCounter);
-                                              rpm_text.setText(String.format("%f RPM", rpm_val));
-                                          }
-                                      });
-                                    Log.d(TAG, "Received data: "+data);
+                                    if (vals.length == 3) {
+                                        try {
+                                            battery.setVoltage(Float.parseFloat(vals[2]));
+                                            final int rpm_val = (int)((Float.parseFloat(vals[0]) + Float.parseFloat(vals[1])) * 0.5);
+//                                            Log.d(TAG, String.format("%d RPM", rpm_val));
+                                            speedometer.setRpm((int) (rpm_val));
+                                            runOnUiThread(new Runnable() {
+                                                @Override
+                                                public void run() {
+                                                    TextView rpm_text = (TextView) findViewById(R.id.rpmCounter);
+                                                    rpm_text.setText(String.format("%d RPM", rpm_val));
+                                                }
+                                            });
+                                        }
+                                        catch (NumberFormatException e) {}
+                                    }
+//                                    Log.d(TAG, "Received data: "+data);
                                     readBufferPosition = 0;
                                     handler.post(new Runnable() {
                                         public void run() {
@@ -254,11 +265,35 @@ public class MainActivity extends AppCompatActivity implements JoystickView.Joys
     }
 
     public void onJoystickMoved(float x, float y, int source) {
-        xPercent = x;
-        yPercent = y;
-        String message = makeMessage(xPercent,yPercent, 1);
-        Log.d(TAG, "Attempting to send:"+message);
-        sendData(message);
+        xMovement.add(x);
+        yMovement.add(y);
+        boolean center = (x==0) && (y==0);
+        long currentTimestamp = SystemClock.uptimeMillis();
+        int recSize = xMovement.size();
+        if (recSize == 0) {
+            return;
+        }
+        if (lastCalled == 0 ||  Math.abs(currentTimestamp - lastCalled) > minimumInterval || center){
+            float xAvg = 0;
+            float yAvg = 0;
+            if (!center) {
+                for (int i = 0; i < recSize; i++) {
+                    xAvg += xMovement.get(i);
+                    yAvg += yMovement.get(i);
+                }
+                xAvg = xAvg / recSize;
+                yAvg = yAvg / recSize;
+            }
+            String message = makeMessage(xAvg, yAvg, 0);
+            sendData(message);
+            if (center) {
+                sendData(message);
+                sendData(message);
+            }
+            lastCalled = currentTimestamp;
+            yMovement.clear();
+            xMovement.clear();
+        }
 
     }
 }
